@@ -11,4 +11,20 @@ export class UsersService {
     const user = this.repo.create({email, password});
     return this.repo.save(user);
   }
+
+  findOne(id:number){
+    return this.repo.findOneBy({id});
+  }
+
+  find(email:string){
+    return this.repo.findOneBy({email});
+  }
+
+  update(id:number, attrs:Partial<User>){
+    return this.repo.update(id, attrs);
+  }
+
+  remove(id:number){
+    return this.repo.delete(id);
+  }
 }
