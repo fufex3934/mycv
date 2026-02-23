@@ -7,25 +7,34 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  Session,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 @Serialize(UserDto)
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService,
+  ) {}
   @Post('/signup')
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(
-      createUserDto.email,
-      createUserDto.password,
-    );
+  async createUser(@Body() createUserDto: CreateUserDto,@Session() session:any) {
+    const user = await this.authService.signup(createUserDto.email, createUserDto.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('/signin')
+  async signin(@Body() createUserDto: CreateUserDto,@Session() session:any) {
+    const user = await  this.authService.signin(createUserDto.email, createUserDto.password);
+    session.userId = user.id;
+    return user;
   }
 
   @Get('/:id')
